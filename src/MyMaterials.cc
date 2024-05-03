@@ -1020,7 +1020,8 @@ G4Material* MyMaterials::PMMA(const G4int& WLSConc)
   std::vector<G4double> ABS;
   std::vector<G4double> WLSABS;
   std::vector<G4double> RAYLEIGH;
-  std::vector<G4double> SCINT =
+  std::vector<G4double> SCINT;
+  std::vector<G4double> WLSmat_scint_spectrum =
   {
     0.0016015, 0.0022500, 0.0025195, 0.0025880, 0.0027225, 0.0022745, 0.0021235, 0.0024970, 0.0019755, 0.0025475, 
     0.0032885, 0.0025810, 0.0031760, 0.0037750, 0.0035210, 0.0041225, 0.0039105, 0.0042015, 0.0050170, 0.0063560, 
@@ -1053,7 +1054,8 @@ G4Material* MyMaterials::PMMA(const G4int& WLSConc)
     if( WLSConc >= 0 ) WLSABS.push_back( (WLSmat_measured_attenuation_length.at(WLSConc)).at(600-i)*m );
 
     if( i < 380 ) SCINT.push_back(0.);
-
+    else          SCINT.push_back(WLSmat_scint_spectrum[i-380]);
+    
     if( i >= 551 ) ABS.push_back( 20.*m );
     else           ABS.push_back( WLSmat_PMMA_abs_length.at(550-i)*m );
 
