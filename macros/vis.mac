@@ -94,20 +94,20 @@
 #/units/list
 
 
-/gps/particle geantino
-#/gps/particle opticalphoton
-#/gps/energy 9.5 eV
+#/gps/particle geantino
+/gps/particle opticalphoton
+/gps/energy 9.9 eV
 #/gps/particle alpha
 #/gps/energy 5 MeV
 
 # beamspot
 #/gps/pos/centre 0 0.055 0.1 m
-/gps/pos/centre 0 0 0.20 m
+/gps/pos/centre 0 0.33 0.20 m
 /gps/direction 0 0 -1
 /gps/pos/type Plane
 /gps/pos/shape Square
-/gps/pos/halfx 0.1 m
-/gps/pos/halfy 0.2 m
+/gps/pos/halfx 0.001 m
+/gps/pos/halfy 0.002 m
 
 /tracking/verbose 1
 /run/beamOn 1
