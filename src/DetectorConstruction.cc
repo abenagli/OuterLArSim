@@ -95,12 +95,16 @@ DetectorConstruction::DetectorConstruction (const string& configFileName)
   config.readInto(panel_x, "panel_x");
   config.readInto(panel_y, "panel_y");
   config.readInto(panel_z, "panel_z");
-  config.readInto(panel_material, "panel_material");
+  config.readInto(panel_material, "panel_material"); 
+  config.readInto(vikuiti_side, "vikuiti_side");
+  config.readInto(vikuiti_thickness, "vikuiti_thickness");
+  config.readInto(lightGuide_geometry, "lightGuide_geometry");
   config.readInto(lightGuide_N, "lightGuide_N");
   config.readInto(lightGuide_x, "lightGuide_x");
   config.readInto(lightGuide_y, "lightGuide_y");
   config.readInto(lightGuide_z, "lightGuide_z");
   config.readInto(lightGuide_material, "lightGuide_material");
+  config.readInto(lightGuide_WLSConc, "lightGuide_WLSConc"); 
   config.readInto(supportPanel, "supportPanel");
   config.readInto(supportPanel_x, "supportPanel_x");
   config.readInto(supportPanel_y, "supportPanel_y");
@@ -212,11 +216,15 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   }
 
 
-  G4double vikuitiThickness = 0.150*mm;
-  G4VSolid* vikuitiWrappingBackS = new G4Box("vikuitiWrappingBackS", 0.5*lightGuide_x, 0.5*vikuitiThickness, 0.5*lightGuide_z);
-  G4VSolid* vikuitiWrappingSideS = new G4Box("vikuitiWrappingSideS", 0.5*lightGuide_x, 0.5*lightGuide_y, 0.5*vikuitiThickness);
+  G4VSolid* vikuitiWrappingBackS = new G4Box("vikuitiWrappingBackS", 0.5*lightGuide_x, 0.5*vikuiti_thickness, 0.5*lightGuide_z);
   G4LogicalVolume* vikuitiWrappingBackLV = new G4LogicalVolume(vikuitiWrappingBackS, VikuitiMaterial, "vikuitiWrappingBackLV");
-  G4LogicalVolume* vikuitiWrappingSideLV = new G4LogicalVolume(vikuitiWrappingSideS, VikuitiMaterial, "vikuitiWrappingSideLV");
+  G4VSolid* vikuitiWrappingSideS = NULL;
+  G4LogicalVolume* vikuitiWrappingSideLV = NULL;
+  if( vikuiti_side )
+  {
+    vikuitiWrappingSideS = new G4Box("vikuitiWrappingSideS", 0.5*lightGuide_x, 0.5*lightGuide_y, 0.5*vikuiti_thickness);
+    vikuitiWrappingSideLV = new G4LogicalVolume(vikuitiWrappingSideS, VikuitiMaterial, "vikuitiWrappingSideLV");
+  }
 
   G4VSolid* detS = new G4Box("detS", 0.5*det_x, 0.5*det_y, 0.5*det_z);
   G4LogicalVolume* detLV = new G4LogicalVolume(detS, DeMaterial, "detLV");
@@ -226,42 +234,110 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
   for(int jj = 0; jj < lightGuide_N; ++jj)
   {
-    G4double spacing = panel_z / (lightGuide_N+1);
-    G4double delta_z = 0.5*panel_z - spacing*(jj+1); 
+    G4double spacing_x = 0.;
+    G4double spacing_z = 0.;
+    G4double delta_x = 0.;
+    G4double delta_z = 0.;
     
-    G4VPhysicalVolume* lightGuidePV = new G4PVPlacement(0, G4ThreeVector(0.,+0.5*(panel_y+lightGuide_y)+vikuitiThickness,delta_z), lightGuideLV, Form("lightGuide%02dPV",jj), containerLV, false, 0, checkOverlaps);
-    G4VPhysicalVolume* vikuitiWrappingBackPV = new G4PVPlacement(0, G4ThreeVector(0.,+0.5*(panel_y+vikuitiThickness),delta_z), vikuitiWrappingBackLV, Form("vikuitiWrappingBack%02dPV",jj), containerLV, false, 0, checkOverlaps);
-    G4VPhysicalVolume* vikuitiWrappingSide1PV = new G4PVPlacement(0, G4ThreeVector(0.,+0.5*(panel_y+lightGuide_y)+vikuitiThickness,delta_z-0.5*(lightGuide_z+vikuitiThickness)), vikuitiWrappingSideLV, Form("vikuitiWrappingSide1%02dPV",jj), containerLV, false, 0, checkOverlaps);
-    G4VPhysicalVolume* vikuitiWrappingSide2PV = new G4PVPlacement(0, G4ThreeVector(0.,+0.5*(panel_y+lightGuide_y)+vikuitiThickness,delta_z+0.5*(lightGuide_z+vikuitiThickness)), vikuitiWrappingSideLV, Form("vikuitiWrappingSide2%02dPV",jj), containerLV, false, 0, checkOverlaps);
+    if( lightGuide_geometry == "slats" )
+    {
+      spacing_z = panel_z / (lightGuide_N+1);
+      delta_z = 0.5*panel_z - spacing_z*(jj+1); 
+    }
+    else if( lightGuide_geometry == "tiles" )
+    {
+      spacing_x = (panel_x - 2.*lightGuide_x) / 3.;
+      delta_x = 0.5*panel_x - spacing_x*(int(jj%2)+1.) - lightGuide_x*(int(jj%2)*1.) - 0.5*lightGuide_x;
+      spacing_z = (panel_z - 0.5*lightGuide_N*lightGuide_z) / (0.5*lightGuide_N+1);
+      delta_z = 0.5*panel_z - spacing_z*(int(jj/2)+1.) - lightGuide_z*(int(jj/2)*1.) - 0.5*lightGuide_z;
+    }
+
+    G4VPhysicalVolume* lightGuidePV = new G4PVPlacement(0, G4ThreeVector(delta_x,+0.5*(panel_y+lightGuide_y)+vikuiti_thickness,delta_z), lightGuideLV, Form("lightGuide%02dPV",jj), containerLV, false, 0, checkOverlaps);
+    G4VPhysicalVolume* vikuitiWrappingBackPV = new G4PVPlacement(0, G4ThreeVector(delta_x,+0.5*(panel_y+vikuiti_thickness),delta_z), vikuitiWrappingBackLV, Form("vikuitiWrappingBack%02dPV",jj), containerLV, false, 0, checkOverlaps);
     G4LogicalBorderSurface* vikuitiWrappingBackSurface = new G4LogicalBorderSurface("vikuityWrappingBackSurface", lightGuidePV, vikuitiWrappingBackPV, VikuitiSurface);
-    G4LogicalBorderSurface* vikuitiWrappingSide1Surface = new G4LogicalBorderSurface("vikuityWrappingSide1Surface", lightGuidePV, vikuitiWrappingSide1PV, VikuitiSurface);
-    G4LogicalBorderSurface* vikuitiWrappingSide2Surface = new G4LogicalBorderSurface("vikuityWrappingSide2Surface", lightGuidePV, vikuitiWrappingSide2PV, VikuitiSurface);
+    if( vikuiti_side )
+    {
+      G4VPhysicalVolume* vikuitiWrappingSide1PV = new G4PVPlacement(0, G4ThreeVector(delta_x,+0.5*(panel_y+lightGuide_y)+vikuiti_thickness,delta_z-0.5*(lightGuide_z+vikuiti_thickness)), vikuitiWrappingSideLV, Form("vikuitiWrappingSide1%02dPV",jj), containerLV, false, 0, checkOverlaps);
+      G4VPhysicalVolume* vikuitiWrappingSide2PV = new G4PVPlacement(0, G4ThreeVector(delta_x,+0.5*(panel_y+lightGuide_y)+vikuiti_thickness,delta_z+0.5*(lightGuide_z+vikuiti_thickness)), vikuitiWrappingSideLV, Form("vikuitiWrappingSide2%02dPV",jj), containerLV, false, 0, checkOverlaps);
+      G4LogicalBorderSurface* vikuitiWrappingSide1Surface = new G4LogicalBorderSurface("vikuityWrappingSide1Surface", lightGuidePV, vikuitiWrappingSide1PV, VikuitiSurface);
+      G4LogicalBorderSurface* vikuitiWrappingSide2Surface = new G4LogicalBorderSurface("vikuityWrappingSide2Surface", lightGuidePV, vikuitiWrappingSide2PV, VikuitiSurface);
+    }
 
     if( supportPanel )
     {
-      G4double supportPanel_yCenter = +0.5*(panel_y+supportPanel_y)+vikuitiThickness+lightGuide_y+supportPanel_distance;
-      G4VPhysicalVolume* supportPanelPV = new G4PVPlacement(0, G4ThreeVector(0.,supportPanel_yCenter,delta_z), supportPanelLV, Form("supportPanel%02dPV",jj), containerLV, false, 0, checkOverlaps);
-      G4VPhysicalVolume* primaryPV = new G4PVPlacement(0, G4ThreeVector(0.,supportPanel_yCenter+0.5*(supportPanel_y+primary_thickness),delta_z), primaryLV, Form("primary%02dPV",jj), containerLV, false, 0, checkOverlaps);
+      G4double supportPanel_yCenter = +0.5*(panel_y+supportPanel_y)+vikuiti_thickness+lightGuide_y+supportPanel_distance;
+      G4VPhysicalVolume* supportPanelPV = new G4PVPlacement(0, G4ThreeVector(delta_x,supportPanel_yCenter,delta_z), supportPanelLV, Form("supportPanel%02dPV",jj), containerLV, false, 0, checkOverlaps);
+      G4VPhysicalVolume* primaryPV = new G4PVPlacement(0, G4ThreeVector(delta_x,supportPanel_yCenter+0.5*(supportPanel_y+primary_thickness),delta_z), primaryLV, Form("primary%02dPV",jj), containerLV, false, 0, checkOverlaps);
     }
     else
     {
-      G4double primary_yCenter = +0.5*panel_y+vikuitiThickness+lightGuide_y;
-      G4VPhysicalVolume* primaryPV = new G4PVPlacement(0, G4ThreeVector(0.,primary_yCenter+0.5*primary_thickness,delta_z), primaryLV, Form("primary%02dPV",jj), containerLV, false, 0, checkOverlaps);
+      G4double primary_yCenter = +0.5*panel_y+vikuiti_thickness+lightGuide_y;
+      G4VPhysicalVolume* primaryPV = new G4PVPlacement(0, G4ThreeVector(delta_x,primary_yCenter+0.5*primary_thickness,delta_z), primaryLV, Form("primary%02dPV",jj), containerLV, false, 0, checkOverlaps);
     }
 
-    for(int zz = 0; zz < 8; ++zz)
+    for(int zz = 0; zz < 16; ++zz)
     {
-      G4double spacing2 = lightGuide_z/9.;
-      G4double delta_z2 = 0.5*lightGuide_z - spacing2*(zz+1);
+      G4double spacing_x2 = 0.;
+      G4double delta_x2 = 0.;
+      G4double delta_x3 = 0.;
+      G4double spacing_z2 = 0.;
+      G4double delta_z2 = 0.;
+      G4double delta_z3 = 0.;      
+      G4RotationMatrix* rot = 0;
 
-      G4VPhysicalVolume* windowRPV = new G4PVPlacement(rotY90m, G4ThreeVector(-0.5*(lightGuide_x+window_z), 0.5*(panel_y+lightGuide_y)+vikuitiThickness, delta_z+delta_z2), windowLV, Form("windowR%02d%02dPV",jj,zz), containerLV, false, 0, checkOverlaps);
-      G4VPhysicalVolume* detRPV = new G4PVPlacement(rotY90m, G4ThreeVector(-0.5*(lightGuide_x+det_z)-window_z, 0.5*(panel_y+lightGuide_y)+vikuitiThickness, delta_z+delta_z2), detLV, Form("detR%02d%02dPV",jj,zz), containerLV, false, 0, checkOverlaps);
+      if( lightGuide_geometry == "slats" )
+      {
+        delta_x2 = 0.5*(lightGuide_x+window_z);
+        delta_x2 *= zz < 8 ? -1. : 1.;
+        delta_x3 = 0.5*(lightGuide_x+det_z);
+        delta_x3 *= zz < 8 ? -1. : 1.;
+        delta_x3 += zz < 8 ? -window_z : window_z;
+        spacing_z2 = lightGuide_z/9.;
+        delta_z2 = 0.5*lightGuide_z - spacing_z2*(int(zz%8)+1.);
+        delta_z3 = delta_z2;
+        rot = rotY90m;
+      }
+      else if( lightGuide_geometry == "tiles" )
+      {
+        if( zz < 4 )
+        {
+          delta_x2 = delta_x - 0.5*(lightGuide_x+window_z);
+          delta_x3 = delta_x - 0.5*(lightGuide_x+det_z)-window_z;
+          spacing_z2 = lightGuide_z/5.;
+          delta_z2 = 0.5*lightGuide_z - spacing_z2*(int(zz%4)+1.);
+          delta_z3 = delta_z2;
+          rot = rotY90m;
+        }
+        else if( zz < 8 )
+        {
+          spacing_x2 = lightGuide_x / 5.;
+          delta_x2 = delta_x -0.5*lightGuide_x + spacing_x2*((zz%4)+1.);
+          delta_x3 = delta_x2;
+          delta_z2 = -0.5*(lightGuide_z+window_z);
+          delta_z3 = -0.5*(lightGuide_z+det_z)-window_z;
+        }
+        else if( zz < 12 )
+        {
+          delta_x2 = delta_x + 0.5*(lightGuide_x+window_z);
+          delta_x3 = delta_x + 0.5*(lightGuide_x+det_z)+window_z;
+          spacing_z2 = lightGuide_z/5.;
+          delta_z2 = 0.5*lightGuide_z - spacing_z2*(int(zz%4)+1.);          
+          delta_z3 = delta_z2;
+          rot = rotY90m;  
+        }
+        else
+        {
+          spacing_x2 = lightGuide_x / 5.;
+          delta_x2 = delta_x -0.5*lightGuide_x + spacing_x2*((zz%4)+1.);
+          delta_x3 = delta_x2;
+          delta_z2 = +0.5*(lightGuide_z+window_z);
+          delta_z3 = +0.5*(lightGuide_z+det_z)+window_z;        
+        }
+      }
 
-      G4VPhysicalVolume* windowLPV = new G4PVPlacement(rotY90p, G4ThreeVector(+0.5*(lightGuide_x+window_z), 0.5*(panel_y+lightGuide_y)+vikuitiThickness, delta_z+delta_z2), windowLV, Form("windowL%02d%02dPV",jj,zz), containerLV, false, 0, checkOverlaps);
-      G4VPhysicalVolume* detLPV = new G4PVPlacement(rotY90p, G4ThreeVector(+0.5*(lightGuide_x+det_z)+window_z, 0.5*(panel_y+lightGuide_y)+vikuitiThickness, delta_z+delta_z2), detLV, Form("detLPV%02d%02d",jj,zz), containerLV, false, 0, checkOverlaps);
-      
-      G4LogicalBorderSurface* SiPMWindowRSurface = new G4LogicalBorderSurface(Form("SiPMWindowSurface%02d%02dR",jj,zz), windowRPV, detRPV, SiPMSurface);
-      G4LogicalBorderSurface* SiPMWindowLSurface = new G4LogicalBorderSurface(Form("SiPMWindowSurfaceL%02d%02d",jj,zz), windowLPV, detLPV, SiPMSurface);
+      G4VPhysicalVolume* windowPV = new G4PVPlacement(rot, G4ThreeVector(delta_x2, 0.5*(panel_y+lightGuide_y)+vikuiti_thickness, delta_z+delta_z2), windowLV, Form("window%02d%02dPV",jj,zz), containerLV, false, 0, checkOverlaps);
+      G4VPhysicalVolume* detPV = new G4PVPlacement(rot, G4ThreeVector(delta_x3, 0.5*(panel_y+lightGuide_y)+vikuiti_thickness, delta_z+delta_z3), detLV, Form("det%02d%02dPV",jj,zz), containerLV, false, 0, checkOverlaps);
+      G4LogicalBorderSurface* SiPMWindowSurface = new G4LogicalBorderSurface(Form("SiPMWindowSurface%02d%02d",jj,zz), windowPV, detPV, SiPMSurface);
     }
   }
   
@@ -308,8 +384,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   VisAttVikuitiWrapping -> SetVisibility(true);
   VisAttVikuitiWrapping -> SetForceWireframe(false);
   vikuitiWrappingBackLV -> SetVisAttributes(VisAttVikuitiWrapping);
-  vikuitiWrappingSideLV -> SetVisAttributes(VisAttVikuitiWrapping);
-
+  if( vikuiti_side ) vikuitiWrappingSideLV -> SetVisAttributes(VisAttVikuitiWrapping);
+  
   G4VisAttributes* VisAttPrimary = new G4VisAttributes(green);
   VisAttPrimary -> SetVisibility(true);
   VisAttPrimary -> SetForceWireframe(false);
@@ -375,7 +451,7 @@ void DetectorConstruction::initializeMaterials()
   
   
   LgMaterial = NULL;
-  if      ( lightGuide_material == 1 )  LgMaterial = MyMaterials::PMMA(0);
+  if      ( lightGuide_material == 1 )  LgMaterial = MyMaterials::PMMA(lightGuide_WLSConc);
   else
   {
     G4cerr << "<DetectorConstructioninitializeMaterials>: Invalid lightguide material specifier " << lightGuide_material << G4endl ;

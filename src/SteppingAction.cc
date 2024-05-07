@@ -80,16 +80,18 @@ void SteppingAction::UserSteppingAction(const G4Step *theStep)
       CreateTree::Instance()->outputMomentum->at(3) = theTrack->GetTotalEnergy() / GeV;
     }
   }
-
+  
   // optical photon
   if (particleType == G4OpticalPhoton::OpticalPhotonDefinition())
   {
-    G4String processName = theTrack->GetCreatorProcess()->GetProcessName();
+    
+    G4String processName = "NONE";
+    if( theTrack->GetCreatorProcess() ) processName = theTrack->GetCreatorProcess()->GetProcessName();
     G4String interName = thePostPoint->GetProcessDefinedStep()->GetProcessName();
-
+    
     // Retrieve the status of the photon
     G4OpBoundaryProcessStatus theStatus = Undefined;
-
+    
     static G4ThreadLocal G4ProcessManager *OpManager = G4OpticalPhoton::OpticalPhoton()->GetProcessManager();
 
     if (OpManager)
@@ -108,7 +110,7 @@ void SteppingAction::UserSteppingAction(const G4Step *theStep)
         }
       }
     }
-
+    
     // G4cout << "nStep: " << nStep << "   thePrePoint: " << thePrePoint->GetPosition() << " thePrePV: " << thePrePVName << "   thePostPoint: " << thePostPoint->GetPosition() << "   thePostPV: " << thePostPVName << "   processName: " << processName << "   LVAtVertex: "<< theTrack->GetLogicalVolumeAtVertex()->GetName() << "   theTrackStatus: " << theTrackStatus << "   angle with (0,0,1): " << (G4ThreeVector(0.,0.,1.).angle(theTrackVertexDirection)*57.2958) << std::endl;
     // G4cout << "nStep: " << nStep << " thePrePV: " << thePrePVName << "   thePostPV: " << thePostPVName << "   processName: " << processName << "   proc: " << interName << "   status: " << theStatus << "   LVAtVertex: "<< theTrack->GetLogicalVolumeAtVertex()->GetName() << "   theTrackStatus: " << theTrackStatus << "   angle with (0,0,1): " << (G4ThreeVector(0.,0.,1.).angle(theTrackVertexDirection)*57.2958) << std::endl;
     // if( theStatus == Detection ) G4cout << "DETECTION!!!" << G4endl;
@@ -119,15 +121,28 @@ void SteppingAction::UserSteppingAction(const G4Step *theStep)
         (processName == "Scintillation") &&
         (nStep == 1))
     {
-      CreateTree::Instance()->n_phot_sci += 1;
-      CreateTree::Instance()->time_phot_sci.push_back(thePrePoint->GetGlobalTime() / picosecond);
-      CreateTree::Instance()->lambda_phot_sci.push_back(fromEvToNm(theTrack->GetTotalEnergy() / eV));
-      CreateTree::Instance()->angle_phot_sci.push_back(cos(G4ThreeVector(0., 0., -1.).angle(theTrackVertexDirection)));
+      CreateTree::Instance()->n_phot_sci_LAr += 1;
+      CreateTree::Instance()->time_phot_sci_LAr.push_back(thePrePoint->GetGlobalTime() / picosecond);
+      CreateTree::Instance()->lambda_phot_sci_LAr.push_back(fromEvToNm(theTrack->GetTotalEnergy() / eV));
+      CreateTree::Instance()->angle_phot_sci_LAr.push_back(cos(G4ThreeVector(0., 0., -1.).angle(theTrackVertexDirection)));
+    }
+
+    //-----------------------------
+    // count photons in primary wls
+    if ((G4StrUtil::contains(theTrack->GetLogicalVolumeAtVertex()->GetName(), "containerLV")) &&
+        (G4StrUtil::contains(thePostPVName, "primary")) &&
+        (interName == "OpWLS") &&
+        (theTrackStatus == 2))
+    {
+      CreateTree::Instance()->n_phot_wls_primary += 1;
+      CreateTree::Instance()->lambda_phot_wls_primary.push_back(fromEvToNm(theTrack->GetTotalEnergy() / eV));
+      CreateTree::Instance()->time_phot_wls_primary.push_back(thePrePoint->GetGlobalTime() / picosecond);
+      CreateTree::Instance()->angle_phot_wls_primary.push_back(cos(G4ThreeVector(0., 0., -1.).angle(theTrackVertexDirection)));
     }
 
     if ((G4StrUtil::contains(theTrack->GetLogicalVolumeAtVertex()->GetName(), "containerLV")) &&
         (G4StrUtil::contains(thePostPVName, "primary")) &&
-        (interName == "OpWLS") &&
+        (interName == "OpAbsorption") &&
         (theTrackStatus == 2))
     {
       CreateTree::Instance()->n_phot_abs_primary += 1;
@@ -140,27 +155,18 @@ void SteppingAction::UserSteppingAction(const G4Step *theStep)
         (processName == "OpWLS") &&
         (nStep == 1))
     {
-      CreateTree::Instance()->n_phot_wls_primary += 1;
-      CreateTree::Instance()->lambda_phot_wls_primary.push_back(fromEvToNm(theTrack->GetTotalEnergy() / eV));
-      CreateTree::Instance()->time_phot_wls_primary.push_back(thePrePoint->GetGlobalTime() / picosecond);
-      CreateTree::Instance()->angle_phot_wls_primary.push_back(cos(G4ThreeVector(0., 0., -1.).angle(theTrackVertexDirection)));
+      CreateTree::Instance()->n_phot_sci_primary += 1;
+      CreateTree::Instance()->lambda_phot_sci_primary.push_back(fromEvToNm(theTrack->GetTotalEnergy() / eV));
+      CreateTree::Instance()->time_phot_sci_primary.push_back(thePrePoint->GetGlobalTime() / picosecond);
+      CreateTree::Instance()->angle_phot_sci_primary.push_back(cos(G4ThreeVector(0., 0., -1.).angle(theTrackVertexDirection)));
     }
 
+    //--------------------------------
+    // count photons in the lightguide
     if ((G4StrUtil::contains(theTrack->GetLogicalVolumeAtVertex()->GetName(), "primary")) &&
         (G4StrUtil::contains(thePostPVName, "lightGuide")) &&
         (interName == "OpWLS") &&
         (theTrackStatus == 2))
-    {
-      CreateTree::Instance()->n_phot_abs_lightGuide += 1;
-      CreateTree::Instance()->lambda_phot_abs_lightGuide.push_back(fromEvToNm(theTrack->GetTotalEnergy() / eV));
-      CreateTree::Instance()->time_phot_abs_lightGuide.push_back(thePrePoint->GetGlobalTime() / picosecond);
-      CreateTree::Instance()->angle_phot_abs_lightGuide.push_back(cos(G4ThreeVector(0., 0., -1.).angle(theTrackVertexDirection)));
-    }
-
-    if ((G4StrUtil::contains(theTrack->GetLogicalVolumeAtVertex()->GetName(), "lightGuide")) &&
-        (processName == "OpWLS") &&
-        (theTrackStatus == 0) &&
-        (nStep == 1))
     {
       CreateTree::Instance()->n_phot_wls_lightGuide += 1;
       CreateTree::Instance()->lambda_phot_wls_lightGuide.push_back(fromEvToNm(theTrack->GetTotalEnergy() / eV));
@@ -168,6 +174,41 @@ void SteppingAction::UserSteppingAction(const G4Step *theStep)
       CreateTree::Instance()->angle_phot_wls_lightGuide.push_back(cos(G4ThreeVector(0., 0., -1.).angle(theTrackVertexDirection)));
     }
 
+    if ((G4StrUtil::contains(theTrack->GetLogicalVolumeAtVertex()->GetName(), "primary")) &&
+        (G4StrUtil::contains(thePostPVName, "lightGuide")) &&
+        (interName == "OpAbsorption") &&
+        (theTrackStatus == 2))
+    {
+      CreateTree::Instance()->n_phot_abs_lightGuide += 1;
+      CreateTree::Instance()->lambda_phot_abs_lightGuide.push_back(fromEvToNm(theTrack->GetTotalEnergy() / eV));
+      CreateTree::Instance()->time_phot_abs_lightGuide.push_back(thePrePoint->GetGlobalTime() / picosecond);
+      CreateTree::Instance()->angle_phot_abs_lightGuide.push_back(cos(G4ThreeVector(0., 0., -1.).angle(theTrackVertexDirection)));
+    }
+    
+    if ((G4StrUtil::contains(theTrack->GetLogicalVolumeAtVertex()->GetName(), "lightGuide")) &&
+        (G4StrUtil::contains(thePostPVName, "lightGuide")) &&
+        (interName == "OpAbsorption") &&
+        (theTrackStatus == 2))
+    {
+      CreateTree::Instance()->n_phot_selfabs_lightGuide += 1;
+      CreateTree::Instance()->lambda_phot_selfabs_lightGuide.push_back(fromEvToNm(theTrack->GetTotalEnergy() / eV));
+      CreateTree::Instance()->time_phot_selfabs_lightGuide.push_back(thePrePoint->GetGlobalTime() / picosecond);
+      CreateTree::Instance()->angle_phot_selfabs_lightGuide.push_back(cos(G4ThreeVector(0., 0., -1.).angle(theTrackVertexDirection)));
+    }
+
+    if ((G4StrUtil::contains(theTrack->GetLogicalVolumeAtVertex()->GetName(), "lightGuide")) &&
+        (processName == "OpWLS") &&
+        (theTrackStatus == 0) &&
+        (nStep == 1))
+    {
+      CreateTree::Instance()->n_phot_sci_lightGuide += 1;
+      CreateTree::Instance()->lambda_phot_sci_lightGuide.push_back(fromEvToNm(theTrack->GetTotalEnergy() / eV));
+      CreateTree::Instance()->time_phot_sci_lightGuide.push_back(thePrePoint->GetGlobalTime() / picosecond);
+      CreateTree::Instance()->angle_phot_sci_lightGuide.push_back(cos(G4ThreeVector(0., 0., -1.).angle(theTrackVertexDirection)));
+    }
+
+    //----------------------
+    // count photons at SiPM
     if ((G4StrUtil::contains(theTrack->GetLogicalVolumeAtVertex()->GetName(), "lightGuide")) &&
         (theStatus == Detection))
     {
@@ -178,6 +219,6 @@ void SteppingAction::UserSteppingAction(const G4Step *theStep)
     }
 
   } // optical photon
-
+  
   return;
 }

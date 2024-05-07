@@ -46,30 +46,45 @@ public:
   float depositedEnergyWrapping;
   float depositedEnergyWorld;
   
-  int n_phot_sci;
-  std::vector<float> time_phot_sci;
-  std::vector<float> lambda_phot_sci;
-  std::vector<float> angle_phot_sci;
-
-  int n_phot_abs_primary;
-  std::vector<float> time_phot_abs_primary;
-  std::vector<float> lambda_phot_abs_primary;
-  std::vector<float> angle_phot_abs_primary;
+  int n_phot_sci_LAr;
+  std::vector<float> time_phot_sci_LAr;
+  std::vector<float> lambda_phot_sci_LAr;
+  std::vector<float> angle_phot_sci_LAr;
 
   int n_phot_wls_primary;
   std::vector<float> time_phot_wls_primary;
   std::vector<float> lambda_phot_wls_primary;
   std::vector<float> angle_phot_wls_primary;
 
-  int n_phot_abs_lightGuide;
-  std::vector<float> time_phot_abs_lightGuide;
-  std::vector<float> lambda_phot_abs_lightGuide;
-  std::vector<float> angle_phot_abs_lightGuide;
+  int n_phot_abs_primary;
+  std::vector<float> time_phot_abs_primary;
+  std::vector<float> lambda_phot_abs_primary;
+  std::vector<float> angle_phot_abs_primary;
+
+  int n_phot_sci_primary;
+  std::vector<float> time_phot_sci_primary;
+  std::vector<float> lambda_phot_sci_primary;
+  std::vector<float> angle_phot_sci_primary;
 
   int n_phot_wls_lightGuide;
   std::vector<float> time_phot_wls_lightGuide;
   std::vector<float> lambda_phot_wls_lightGuide;
   std::vector<float> angle_phot_wls_lightGuide;
+
+  int n_phot_abs_lightGuide;
+  std::vector<float> time_phot_abs_lightGuide;
+  std::vector<float> lambda_phot_abs_lightGuide;
+  std::vector<float> angle_phot_abs_lightGuide;
+
+  int n_phot_selfabs_lightGuide;
+  std::vector<float> time_phot_selfabs_lightGuide;
+  std::vector<float> lambda_phot_selfabs_lightGuide;
+  std::vector<float> angle_phot_selfabs_lightGuide;
+
+  int n_phot_sci_lightGuide;
+  std::vector<float> time_phot_sci_lightGuide;
+  std::vector<float> lambda_phot_sci_lightGuide;
+  std::vector<float> angle_phot_sci_lightGuide;
 
   int n_phot_det;
   std::vector<float> time_phot_det;

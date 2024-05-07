@@ -15,7 +15,7 @@
 /gps/direction 0 0 -1
 /gps/pos/type Plane
 /gps/pos/shape Square
-/gps/pos/halfx 0.1 m
+/gps/pos/halfx 0.2 m
 /gps/pos/halfy 0.2 m
 
 #/tracking/verbose 1

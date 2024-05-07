@@ -96,8 +96,13 @@ private:
   G4double panel_z;
   G4int    panel_material;
   
+  G4int    vikuiti_side;
+  G4double vikuiti_thickness;
+
+  G4String lightGuide_geometry;
   G4int    lightGuide_N;
   G4int    lightGuide_material;
+  G4int    lightGuide_WLSConc; 
   G4double lightGuide_x;
   G4double lightGuide_y;
   G4double lightGuide_z;

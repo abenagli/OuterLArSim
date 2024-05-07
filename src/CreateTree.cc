@@ -34,30 +34,45 @@ CreateTree::CreateTree (TString name)
   this -> GetTree() -> Branch("depositedEnergyWrapping", &this->depositedEnergyWrapping, "depositedEnergyWrapping/F");
   this -> GetTree() -> Branch("depositedEnergyWorld",    &this->depositedEnergyWorld,       "depositedEnergyWorld/F");
   
-  this -> GetTree() -> Branch("n_phot_sci", &this->n_phot_sci, "n_phot_sci/I");
-  this -> GetTree() -> Branch("time_phot_sci",   &time_phot_sci);
-  this -> GetTree() -> Branch("lambda_phot_sci", &lambda_phot_sci);
-  this -> GetTree() -> Branch("angle_phot_sci", &angle_phot_sci);
+  this -> GetTree() -> Branch("n_phot_sci_LAr", &this->n_phot_sci_LAr, "n_phot_sci_LAr/I");
+  this -> GetTree() -> Branch("time_phot_sci_LAr",   &time_phot_sci_LAr);
+  this -> GetTree() -> Branch("lambda_phot_sci_LAr", &lambda_phot_sci_LAr);
+  this -> GetTree() -> Branch("angle_phot_sci_LAr", &angle_phot_sci_LAr);
   
+  this -> GetTree() -> Branch("n_phot_wls_primary", &this->n_phot_wls_primary, "n_phot_wls_primary/I");
+  this -> GetTree() -> Branch("time_phot_wls_primary",   &time_phot_wls_primary);
+  this -> GetTree() -> Branch("lambda_phot_wls_primary", &lambda_phot_wls_primary);
+  this -> GetTree() -> Branch("angle_phot_wls_primary", &angle_phot_wls_primary);
+
   this -> GetTree() -> Branch("n_phot_abs_primary", &this->n_phot_abs_primary, "n_phot_abs_primary/I");
   this -> GetTree() -> Branch("time_phot_abs_primary",   &time_phot_abs_primary);
   this -> GetTree() -> Branch("lambda_phot_abs_primary", &lambda_phot_abs_primary);
   this -> GetTree() -> Branch("angle_phot_abs_primary", &angle_phot_abs_primary);
 
-  this -> GetTree() -> Branch("n_phot_wls_primary", &this->n_phot_wls_primary, "n_phot_wls_primary/I");
-  this -> GetTree() -> Branch("time_phot_wls_primary",   &time_phot_wls_primary);
-  this -> GetTree() -> Branch("lambda_phot_wls_primary", &lambda_phot_wls_primary);
-  this -> GetTree() -> Branch("angle_phot_wls_primary", &angle_phot_wls_primary);
+  this -> GetTree() -> Branch("n_phot_sci_primary", &this->n_phot_sci_primary, "n_phot_sci_primary/I");
+  this -> GetTree() -> Branch("time_phot_sci_primary",   &time_phot_sci_primary);
+  this -> GetTree() -> Branch("lambda_phot_sci_primary", &lambda_phot_sci_primary);
+  this -> GetTree() -> Branch("angle_phot_sci_primary", &angle_phot_sci_primary);
+
+  this -> GetTree() -> Branch("n_phot_wls_lightGuide", &this->n_phot_wls_lightGuide, "n_phot_wls_lightGuide/I");
+  this -> GetTree() -> Branch("time_phot_wls_lightGuide",   &time_phot_wls_lightGuide);
+  this -> GetTree() -> Branch("lambda_phot_wls_lightGuide", &lambda_phot_wls_lightGuide);
+  this -> GetTree() -> Branch("angle_phot_wls_lightGuide", &angle_phot_wls_lightGuide);
   
   this -> GetTree() -> Branch("n_phot_abs_lightGuide", &this->n_phot_abs_lightGuide, "n_phot_abs_lightGuide/I");
   this -> GetTree() -> Branch("time_phot_abs_lightGuide",   &time_phot_abs_lightGuide);
   this -> GetTree() -> Branch("lambda_phot_abs_lightGuide", &lambda_phot_abs_lightGuide);
   this -> GetTree() -> Branch("angle_phot_abs_lightGuide", &angle_phot_abs_lightGuide);
 
-  this -> GetTree() -> Branch("n_phot_wls_lightGuide", &this->n_phot_wls_lightGuide, "n_phot_wls_lightGuide/I");
-  this -> GetTree() -> Branch("time_phot_wls_lightGuide",   &time_phot_wls_lightGuide);
-  this -> GetTree() -> Branch("lambda_phot_wls_lightGuide", &lambda_phot_wls_lightGuide);
-  this -> GetTree() -> Branch("angle_phot_wls_lightGuide", &angle_phot_wls_lightGuide);
+  this -> GetTree() -> Branch("n_phot_selfabs_lightGuide", &this->n_phot_selfabs_lightGuide, "n_phot_selfabs_lightGuide/I");
+  this -> GetTree() -> Branch("time_phot_selfabs_lightGuide",   &time_phot_selfabs_lightGuide);
+  this -> GetTree() -> Branch("lambda_phot_selfabs_lightGuide", &lambda_phot_selfabs_lightGuide);
+  this -> GetTree() -> Branch("angle_phot_selfabs_lightGuide", &angle_phot_abs_lightGuide);
+
+  this -> GetTree() -> Branch("n_phot_sci_lightGuide", &this->n_phot_sci_lightGuide, "n_phot_sci_lightGuide/I");
+  this -> GetTree() -> Branch("time_phot_sci_lightGuide",   &time_phot_sci_lightGuide);
+  this -> GetTree() -> Branch("lambda_phot_sci_lightGuide", &lambda_phot_sci_lightGuide);
+  this -> GetTree() -> Branch("angle_phot_sci_lightGuide", &angle_phot_sci_lightGuide);
 
   this -> GetTree() -> Branch("n_phot_det", &this->n_phot_det, "n_phot_det/I");
   this -> GetTree() -> Branch("time_phot_det",   &time_phot_det);
@@ -126,30 +141,45 @@ void CreateTree::Clear()
   depositedEnergyWrapping = 0.;
   depositedEnergyWorld = 0.;
   
-  n_phot_sci = 0;
-  time_phot_sci.clear();
-  lambda_phot_sci.clear();
-  angle_phot_sci.clear();
+  n_phot_sci_LAr = 0;
+  time_phot_sci_LAr.clear();
+  lambda_phot_sci_LAr.clear();
+  angle_phot_sci_LAr.clear();
+  
+  n_phot_wls_primary = 0;
+  time_phot_wls_primary.clear();
+  lambda_phot_wls_primary.clear();
+  angle_phot_wls_primary.clear();
   
   n_phot_abs_primary = 0;
   time_phot_abs_primary.clear();
   lambda_phot_abs_primary.clear();
   angle_phot_abs_primary.clear();
+  
+  n_phot_sci_primary = 0;
+  time_phot_sci_primary.clear();
+  lambda_phot_sci_primary.clear();
+  angle_phot_sci_primary.clear();
 
-  n_phot_wls_primary = 0;
-  time_phot_wls_primary.clear();
-  lambda_phot_wls_primary.clear();
-  angle_phot_wls_primary.clear();
+  n_phot_wls_lightGuide = 0;
+  time_phot_wls_lightGuide.clear();
+  lambda_phot_wls_lightGuide.clear();
+  angle_phot_wls_lightGuide.clear();
   
   n_phot_abs_lightGuide = 0;
   time_phot_abs_lightGuide.clear();
   lambda_phot_abs_lightGuide.clear();
   angle_phot_abs_lightGuide.clear();
 
-  n_phot_wls_lightGuide = 0;
-  time_phot_wls_lightGuide.clear();
-  lambda_phot_wls_lightGuide.clear();
-  angle_phot_wls_lightGuide.clear();
+  n_phot_selfabs_lightGuide = 0;
+  time_phot_selfabs_lightGuide.clear();
+  lambda_phot_selfabs_lightGuide.clear();
+  angle_phot_selfabs_lightGuide.clear();
+
+  n_phot_sci_lightGuide = 0;
+  time_phot_sci_lightGuide.clear();
+  lambda_phot_sci_lightGuide.clear();
+  angle_phot_sci_lightGuide.clear();
 
   n_phot_det = 0;
   time_phot_det.clear();
