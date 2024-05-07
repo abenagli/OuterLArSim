@@ -64,6 +64,11 @@ CreateTree::CreateTree (TString name)
   this -> GetTree() -> Branch("lambda_phot_abs_lightGuide", &lambda_phot_abs_lightGuide);
   this -> GetTree() -> Branch("angle_phot_abs_lightGuide", &angle_phot_abs_lightGuide);
 
+  this -> GetTree() -> Branch("n_phot_selfwls_lightGuide", &this->n_phot_selfwls_lightGuide, "n_phot_selfwls_lightGuide/I");
+  this -> GetTree() -> Branch("time_phot_selfwls_lightGuide",   &time_phot_selfwls_lightGuide);
+  this -> GetTree() -> Branch("lambda_phot_selfwls_lightGuide", &lambda_phot_selfwls_lightGuide);
+  this -> GetTree() -> Branch("angle_phot_selfwls_lightGuide", &angle_phot_selfwls_lightGuide);
+
   this -> GetTree() -> Branch("n_phot_selfabs_lightGuide", &this->n_phot_selfabs_lightGuide, "n_phot_selfabs_lightGuide/I");
   this -> GetTree() -> Branch("time_phot_selfabs_lightGuide",   &time_phot_selfabs_lightGuide);
   this -> GetTree() -> Branch("lambda_phot_selfabs_lightGuide", &lambda_phot_selfabs_lightGuide);
@@ -170,6 +175,11 @@ void CreateTree::Clear()
   time_phot_abs_lightGuide.clear();
   lambda_phot_abs_lightGuide.clear();
   angle_phot_abs_lightGuide.clear();
+
+  n_phot_selfwls_lightGuide = 0;
+  time_phot_selfwls_lightGuide.clear();
+  lambda_phot_selfwls_lightGuide.clear();
+  angle_phot_selfwls_lightGuide.clear();
 
   n_phot_selfabs_lightGuide = 0;
   time_phot_selfabs_lightGuide.clear();

@@ -187,6 +187,17 @@ void SteppingAction::UserSteppingAction(const G4Step *theStep)
     
     if ((G4StrUtil::contains(theTrack->GetLogicalVolumeAtVertex()->GetName(), "lightGuide")) &&
         (G4StrUtil::contains(thePostPVName, "lightGuide")) &&
+        (interName == "OpWLS") &&
+        (theTrackStatus == 2))
+    {
+      CreateTree::Instance()->n_phot_selfwls_lightGuide += 1;
+      CreateTree::Instance()->lambda_phot_selfwls_lightGuide.push_back(fromEvToNm(theTrack->GetTotalEnergy() / eV));
+      CreateTree::Instance()->time_phot_selfwls_lightGuide.push_back(thePrePoint->GetGlobalTime() / picosecond);
+      CreateTree::Instance()->angle_phot_selfwls_lightGuide.push_back(cos(G4ThreeVector(0., 0., -1.).angle(theTrackVertexDirection)));
+    }
+
+    if ((G4StrUtil::contains(theTrack->GetLogicalVolumeAtVertex()->GetName(), "lightGuide")) &&
+        (G4StrUtil::contains(thePostPVName, "lightGuide")) &&
         (interName == "OpAbsorption") &&
         (theTrackStatus == 2))
     {

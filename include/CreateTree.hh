@@ -76,6 +76,11 @@ public:
   std::vector<float> lambda_phot_abs_lightGuide;
   std::vector<float> angle_phot_abs_lightGuide;
 
+  int n_phot_selfwls_lightGuide;
+  std::vector<float> time_phot_selfwls_lightGuide;
+  std::vector<float> lambda_phot_selfwls_lightGuide;
+  std::vector<float> angle_phot_selfwls_lightGuide;
+
   int n_phot_selfabs_lightGuide;
   std::vector<float> time_phot_selfabs_lightGuide;
   std::vector<float> lambda_phot_selfabs_lightGuide;
