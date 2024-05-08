@@ -37,6 +37,7 @@
 #include "G4ParticleTable.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4OpticalPhoton.hh"
+#include "G4Geantino.hh"
 #include "G4GeneralParticleSource.hh"
 #include "G4SystemOfUnits.hh"
 #include "Randomize.hh"
@@ -69,10 +70,19 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   //G4ThreeVector posCentre(0.*CLHEP::mm,300.*CLHEP::mm,z_0_*CLHEP::mm);
   //gun_ -> GetCurrentSource() -> GetPosDist() -> SetCentreCoords(posCentre);
 
-  if( gun_->GetParticleDefinition() == G4OpticalPhoton::OpticalPhotonDefinition() )
+  if( gun_->GetParticleDefinition() == G4OpticalPhoton::OpticalPhotonDefinition() || gun_->GetParticleDefinition() == G4Geantino::Definition() )
   {
     G4double angle = G4UniformRand() * 360.0 * deg;
     SetOptPhotonPolar(angle);
+
+    G4double theta = 0.5*3.14159;
+    G4double phi = 2.*3.14159 * G4UniformRand();
+    G4double cosTheta = cos(theta);
+    G4double sinTheta = std::sqrt(1. - cosTheta*cosTheta);
+    G4double ux = sinTheta*std::cos(phi);
+    G4double uy = sinTheta*std::sin(phi);
+    G4double uz = -1.*cosTheta;
+    gun_ -> GetCurrentSource() -> GetAngDist() -> SetParticleMomentumDirection(G4ThreeVector(uy,uz,ux));    
   }
   
   gun_ -> GeneratePrimaryVertex(anEvent);
