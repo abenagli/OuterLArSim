@@ -33,3 +33,6 @@
 
 # ROOT files
 *.root
+
+# plots
+*.png
