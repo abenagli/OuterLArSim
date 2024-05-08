@@ -123,7 +123,8 @@ private:
   G4double gap_rIndex;
   G4double gap_absLength;
   
-  G4int  detector;
+  G4int    detector;
+  G4int    det_N;
   G4String det_conf;
   G4double det_x;
   G4double det_y;
