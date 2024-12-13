@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 ############ Make your changes here ############ 
  
 set(mytarget    OuterLArSim      )  # equivalent to "name := myexample" in G4 GNUmakefiles
+set(mytarget    OuterLArSimNoVis )  # equivalent to "name := myexample" in G4 GNUmakefiles
 set(useROOT     true             )  # use true or false (or comment to set to false)
 set(myROOTdict  true             )  # use true or false (or comment to set to false)
 #set(myROOTclass TMyRootEvent.hpp)  # comment if none (please see http://root.cern.ch/phpBB3//viewtopic.php?t=6172)
