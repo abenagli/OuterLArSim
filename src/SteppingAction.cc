@@ -217,7 +217,13 @@ void SteppingAction::UserSteppingAction(const G4Step *theStep)
       CreateTree::Instance()->time_phot_sci_lightGuide.push_back(thePrePoint->GetGlobalTime() / picosecond);
       CreateTree::Instance()->angle_phot_sci_lightGuide.push_back(cos(G4ThreeVector(0., 0., -1.).angle(theTrackVertexDirection)));
     }
-
+    
+    if( (G4StrUtil::contains(theTrack->GetLogicalVolumeAtVertex()->GetName(), "lightGuide")) )
+    {
+      CreateTree::Instance()->trackLengthMap_phot_det[int(trackID)] += float(theStep->GetStepLength()*mm);
+      CreateTree::Instance()->prodPositionMap_phot[int(trackID)] = theTrack->GetVertexPosition();
+    }
+    
     //----------------------
     // count photons at SiPM
     if ((G4StrUtil::contains(theTrack->GetLogicalVolumeAtVertex()->GetName(), "lightGuide")) &&
@@ -227,6 +233,7 @@ void SteppingAction::UserSteppingAction(const G4Step *theStep)
       CreateTree::Instance()->lambda_phot_det.push_back(fromEvToNm(theTrack->GetTotalEnergy() / eV));
       CreateTree::Instance()->time_phot_det.push_back(thePrePoint->GetGlobalTime() / picosecond);
       CreateTree::Instance()->angle_phot_det.push_back(cos(G4ThreeVector(1., 0., 0.).angle(theTrackVertexDirection)));
+      CreateTree::Instance()->trackID_phot_det.push_back(int(trackID));
     }
 
   } // optical photon

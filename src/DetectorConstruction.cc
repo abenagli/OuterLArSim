@@ -74,6 +74,7 @@ using namespace CLHEP;
 
 
 
+
 DetectorConstruction::DetectorConstruction (const string& configFileName)
 {
   //---------------------------------------
@@ -206,10 +207,35 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
   // the light guide
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-  G4VSolid* lightGuideS = new G4Box("lightGuideS", 0.5*lightGuide_x, 0.5*lightGuide_y, 0.5*lightGuide_z);
-  G4LogicalVolume* lightGuideLV = new G4LogicalVolume(lightGuideS, LgMaterial, "lightGuideLV");
-  G4VPhysicalVolume* lightGuidePV = new G4PVPlacement(0, G4ThreeVector(0.,-0.5*(lightGuideContainer_y-lightGuide_y)+vikuiti_thickness,0.), lightGuideLV, "lightGuidePV", lightGuideContainerLV, false, 0, checkOverlaps);
-  
+  G4VSolid* lightGuideS = NULL;
+  G4LogicalVolume* lightGuideLV = NULL;
+  G4VPhysicalVolume* lightGuidePV = NULL;
+  G4LogicalVolume* vikuitiWrappingMidLeftLV = NULL;
+  G4LogicalVolume* vikuitiWrappingMidRightLV = NULL;
+  if( 1 )
+  {
+    lightGuideS = new G4Box("lightGuideS", 0.5*lightGuide_x, 0.5*lightGuide_y, 0.5*lightGuide_z);
+    lightGuideLV = new G4LogicalVolume(lightGuideS, LgMaterial, "lightGuideLV");
+    lightGuidePV = new G4PVPlacement(0, G4ThreeVector(0.,-0.5*(lightGuideContainer_y-lightGuide_y)+vikuiti_thickness,0.), lightGuideLV, "lightGuidePV", lightGuideContainerLV, false, 0, checkOverlaps);
+  }
+  else
+  {
+    lightGuideS = new G4Box("lightGuideS", 0.25*lightGuide_x-0.5*vikuiti_thickness, 0.5*lightGuide_y, 0.5*lightGuide_z);
+    lightGuideLV = new G4LogicalVolume(lightGuideS, LgMaterial, "lightGuideLV");
+    lightGuidePV = new G4PVPlacement(0, G4ThreeVector(-0.25*lightGuide_x-0.5*vikuiti_thickness,-0.5*(lightGuideContainer_y-lightGuide_y)+vikuiti_thickness,0.), lightGuideLV, "lightGuidePV", lightGuideContainerLV, false, 0, checkOverlaps);
+    lightGuidePV = new G4PVPlacement(0, G4ThreeVector(+0.25*lightGuide_x+0.5*vikuiti_thickness,-0.5*(lightGuideContainer_y-lightGuide_y)+vikuiti_thickness,0.), lightGuideLV, "lightGuidePV", lightGuideContainerLV, false, 0, checkOverlaps);
+    
+    G4VSolid* vikuitiWrappingMidLeftS = new G4Box("vikuitiWrappingMidLeftS", 0.5*vikuiti_thickness, 0.5*lightGuide_y, 0.5*lightGuide_z);
+    vikuitiWrappingMidLeftLV = new G4LogicalVolume(vikuitiWrappingMidLeftS, VikuitiMaterial, "vikuitiWrappingMidLeftLV");
+    G4VPhysicalVolume* vikuitiWrappingMidLeftPV = new G4PVPlacement(0, G4ThreeVector(-0.5*vikuiti_thickness,-0.5*(lightGuideContainer_y-lightGuide_y)+vikuiti_thickness,0.), vikuitiWrappingMidLeftLV, "vikuitiWrappingMidLeftPV", lightGuideContainerLV, false, 0, checkOverlaps);
+    G4LogicalBorderSurface* vikuitiWrappingMidLeftSurface = new G4LogicalBorderSurface("vikuityWrappingMidLeftSurface", lightGuidePV, vikuitiWrappingMidLeftPV, VikuitiSurface);
+    
+    G4VSolid* vikuitiWrappingMidRightS = new G4Box("vikuitiWrappingMidRightS", 0.5*vikuiti_thickness, 0.5*lightGuide_y, 0.5*lightGuide_z);
+    vikuitiWrappingMidRightLV = new G4LogicalVolume(vikuitiWrappingMidRightS, VikuitiMaterial, "vikuitiWrappingMidRightLV");
+    G4VPhysicalVolume* vikuitiWrappingMidRightPV = new G4PVPlacement(0, G4ThreeVector(+0.5*vikuiti_thickness,-0.5*(lightGuideContainer_y-lightGuide_y)+vikuiti_thickness,0.), vikuitiWrappingMidRightLV, "vikuitiWrappingMidRightPV", lightGuideContainerLV, false, 0, checkOverlaps);
+    G4LogicalBorderSurface* vikuitiWrappingMidRightSurface = new G4LogicalBorderSurface("vikuityWrappingMidRightSurface", lightGuidePV, vikuitiWrappingMidRightPV, VikuitiSurface);
+  }
+
   G4VSolid* supportPanelS = NULL;
   G4LogicalVolume* supportPanelLV = NULL;
   G4VSolid* primaryS = NULL;
@@ -269,7 +295,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     G4double spacingZ = 0.;
     G4int det_N_face = 0;
 
-    if( lightGuide_geometry == "slats" )
+    if( det_conf == "shortLR" )
     {
       det_N_face = int(det_N/2.);
 
@@ -286,8 +312,25 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
         det_x_center *= -1;
       }
     }
+    
+    else if( det_conf == "longUD" )
+    {
+      det_N_face = int(det_N/2.);
 
-    else if( lightGuide_geometry == "tiles" )
+      spacingX = ( lightGuide_x - det_x*det_N_face ) / (det_N_face+1.);
+      
+      window_z_center = - ( 0.5*lightGuide_z + 0.5*window_z );
+      det_z_center = - ( 0.5*lightGuide_z  + window_z + 0.5*det_z );
+      det_x_center = -0.5*lightGuide_x + spacingX*((iDet%det_N_face)+1.) + det_x*(iDet%det_N_face) + 0.5*det_x;
+      window_x_center = det_x_center;
+      if( int(iDet/det_N_face) == 1 )
+      {
+        window_z_center *= -1;
+        det_z_center *= -1;
+      }
+    }
+
+    else if( det_conf == "all" )
     {
       det_N_face = int(det_N/4.);
 
@@ -344,12 +387,17 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
     for(G4int iDet = 0; iDet < int(det_N/2); ++iDet)
     {
-      if( lightGuide_geometry == "slats" )
+      if( lightGuide_geometry == "slats" and det_conf == "shortLR" )
       {
         vikuitiWrappingSideZS = new G4SubtractionSolid("vikuitiWrappingSideZS", vikuitiWrappingSideZS, rodX, 0, G4ThreeVector(0.,0.,coord_z[iDet]));
       }
       
-      if( lightGuide_geometry == "tiles" )
+      else if( lightGuide_geometry == "slats" and det_conf == "longUD" )
+      {
+        vikuitiWrappingSideXS = new G4SubtractionSolid("vikuitiWrappingSideXS", vikuitiWrappingSideXS, rodZ, 0, G4ThreeVector(coord_x[iDet],0.,0.));
+      }
+
+      else if( lightGuide_geometry == "tiles" )
       {
         G4int det_N_face = int(det_N/4.);
         
@@ -388,10 +436,10 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     G4double delta_x = 0.;
     G4double delta_z = 0.;
     
-    if( lightGuide_geometry == "slats" )
+    if( lightGuide_geometry == "slats" || lightGuide_geometry == "slatsLongFace")
     {
-      spacing_z = panel_z / (lightGuide_N+1);
-      delta_z = 0.5*panel_z - spacing_z*(jj+1); 
+      spacing_z = (panel_z - lightGuide_N*lightGuide_z) / (lightGuide_N+1);
+      delta_z = 0.5*panel_z - spacing_z*(jj+1.) - lightGuide_z*(jj*1.) - 0.5*lightGuide_z;      
     }
     else if( lightGuide_geometry == "tiles" )
     {
@@ -424,7 +472,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   G4Colour brown  (0.70, 0.40, 0.10);  // brown
   
   G4VisAttributes* VisAttWorld = new G4VisAttributes(black);
-  VisAttWorld -> SetVisibility(true) ;
+  VisAttWorld -> SetVisibility(false) ;
   VisAttWorld -> SetForceWireframe(true) ;
   worldLV -> SetVisAttributes(VisAttWorld) ;
   
@@ -433,42 +481,44 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   VisAttContainer -> SetForceWireframe(true) ;
   containerLV -> SetVisAttributes(VisAttContainer) ;
   
-  G4VisAttributes* VisAttPanel = new G4VisAttributes(cyan);
+  G4VisAttributes* VisAttPanel = new G4VisAttributes(gray);
   VisAttPanel -> SetVisibility(true);
-  VisAttPanel -> SetForceWireframe(true);
+  VisAttPanel -> SetForceSolid(true);
   panelLV -> SetVisAttributes(VisAttPanel);
   if( supportPanel ) supportPanelLV -> SetVisAttributes(VisAttPanel);
 
   G4VisAttributes* VisAttLightGuideContainer = new G4VisAttributes(magenta);
-  VisAttLightGuideContainer -> SetVisibility(true);
+  VisAttLightGuideContainer -> SetVisibility(false);
   VisAttLightGuideContainer -> SetForceWireframe(true);
   lightGuideContainerLV -> SetVisAttributes(VisAttLightGuideContainer);
 
-  G4VisAttributes* VisAttLightGuide = new G4VisAttributes(red);
+  G4VisAttributes* VisAttLightGuide = new G4VisAttributes(green);
   VisAttLightGuide -> SetVisibility(true);
-  VisAttLightGuide -> SetForceWireframe(true);
+  VisAttLightGuide -> SetForceSolid(true);
   lightGuideLV -> SetVisAttributes(VisAttLightGuide);
   
   G4VisAttributes* VisAttVikuitiWrapping = new G4VisAttributes(yellow);
   VisAttVikuitiWrapping -> SetVisibility(true);
   VisAttVikuitiWrapping -> SetForceWireframe(false);
   vikuitiWrappingBackLV -> SetVisAttributes(VisAttVikuitiWrapping);
+  if( vikuitiWrappingMidLeftLV ) vikuitiWrappingMidLeftLV -> SetVisAttributes(VisAttVikuitiWrapping);
+  if( vikuitiWrappingMidRightLV ) vikuitiWrappingMidRightLV -> SetVisAttributes(VisAttVikuitiWrapping);
   if( vikuiti_side ) vikuitiWrappingSideXLV -> SetVisAttributes(VisAttVikuitiWrapping);
   if( vikuiti_side ) vikuitiWrappingSideZLV -> SetVisAttributes(VisAttVikuitiWrapping);
   
-  G4VisAttributes* VisAttPrimary = new G4VisAttributes(green);
+  G4VisAttributes* VisAttPrimary = new G4VisAttributes(cyan);
   VisAttPrimary -> SetVisibility(true);
-  VisAttPrimary -> SetForceWireframe(false);
+  VisAttPrimary -> SetForceSolid(true);
   primaryLV -> SetVisAttributes(VisAttPrimary);
   
   G4VisAttributes* VisAttDet = new G4VisAttributes(gray);
   VisAttDet -> SetVisibility(true);
-  VisAttDet -> SetForceWireframe(true);
+  VisAttDet -> SetForceSolid(true);
   detLV -> SetVisAttributes(VisAttDet);
   
   G4VisAttributes* VisAttWindow = new G4VisAttributes(blue);
   VisAttWindow -> SetVisibility(true);
-  VisAttWindow -> SetForceWireframe(true);
+  VisAttWindow -> SetForceSolid(true);
   windowLV -> SetVisAttributes(VisAttWindow);
   
   G4cout << ">>>>>> DetectorConstruction::Construct()::end <<< " << G4endl;

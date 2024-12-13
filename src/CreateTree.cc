@@ -78,11 +78,15 @@ CreateTree::CreateTree (TString name)
   this -> GetTree() -> Branch("time_phot_sci_lightGuide",   &time_phot_sci_lightGuide);
   this -> GetTree() -> Branch("lambda_phot_sci_lightGuide", &lambda_phot_sci_lightGuide);
   this -> GetTree() -> Branch("angle_phot_sci_lightGuide", &angle_phot_sci_lightGuide);
-
+  
   this -> GetTree() -> Branch("n_phot_det", &this->n_phot_det, "n_phot_det/I");
   this -> GetTree() -> Branch("time_phot_det",   &time_phot_det);
   this -> GetTree() -> Branch("lambda_phot_det", &lambda_phot_det);
   this -> GetTree() -> Branch("angle_phot_det", &angle_phot_det);
+  this -> GetTree() -> Branch("prodX_phot_det", &prodX_phot_det);
+  this -> GetTree() -> Branch("prodY_phot_det", &prodY_phot_det);
+  this -> GetTree() -> Branch("prodZ_phot_det", &prodZ_phot_det);
+  this -> GetTree() -> Branch("trackLength_phot_det", &trackLength_phot_det);
 
   this -> Clear() ;
 }
@@ -146,6 +150,8 @@ void CreateTree::Clear()
   depositedEnergyWrapping = 0.;
   depositedEnergyWorld = 0.;
   
+  prodPositionMap_phot.clear();
+  
   n_phot_sci_LAr = 0;
   time_phot_sci_LAr.clear();
   lambda_phot_sci_LAr.clear();
@@ -195,4 +201,10 @@ void CreateTree::Clear()
   time_phot_det.clear();
   lambda_phot_det.clear();
   angle_phot_det.clear();
+  trackID_phot_det.clear();
+  prodX_phot_det.clear();
+  prodY_phot_det.clear();
+  prodZ_phot_det.clear(); 
+  trackLength_phot_det.clear();
+  trackLengthMap_phot_det.clear();
 }

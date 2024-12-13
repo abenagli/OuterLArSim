@@ -70,7 +70,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   //G4ThreeVector posCentre(0.*CLHEP::mm,300.*CLHEP::mm,z_0_*CLHEP::mm);
   //gun_ -> GetCurrentSource() -> GetPosDist() -> SetCentreCoords(posCentre);
 
-  if( gun_->GetParticleDefinition() == G4OpticalPhoton::OpticalPhotonDefinition() || gun_->GetParticleDefinition() == G4Geantino::Definition() )
+  if( gun_->GetParticleDefinition() == G4OpticalPhoton::OpticalPhotonDefinition() )
   {
     G4double angle = G4UniformRand() * 360.0 * deg;
     SetOptPhotonPolar(angle);

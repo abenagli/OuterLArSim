@@ -994,19 +994,28 @@ G4Material *MyMaterials::PMMA(const G4int &WLSConc)
   for (int i = 600; i >= 280; --i)
   {
     PhotonEnergy.push_back(fromNmToEv((double)i) * eV);
-
+    
     if (WLSConc >= 0)
-      WLSABS.push_back((WLSmat_measured_attenuation_length.at(WLSConc)).at(600 - i) * m);
-
+      if (i < 430)   
+        WLSABS.push_back((WLSmat_measured_attenuation_length.at(WLSConc)).at(600 - i) * m);
+      else
+        WLSABS.push_back(1000.*m);
+        
     if (i < 380)
       SCINT.push_back(0.);
     else
       SCINT.push_back(WLSmat_scint_spectrum[i - 380]);
 
-    if (i >= 551)
-      ABS.push_back(20. * m);
+    if (WLSConc >= 0)
+      if (i >= 430)
+        ABS.push_back((WLSmat_measured_attenuation_length.at(WLSConc)).at(600 - i) * m);
+      else
+        ABS.push_back(1.5 * WLSmat_PMMA_abs_length.at(550 - i) * m);
     else
-      ABS.push_back(WLSmat_PMMA_abs_length.at(550 - i) * m);
+        if (i >= 551)
+          ABS.push_back(30. * m);
+        else
+          ABS.push_back(1.5 * WLSmat_PMMA_abs_length.at(550 - i) * m);
 
     if (i >= 380)
       RAYLEIGH.push_back(2. * m);

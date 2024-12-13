@@ -73,5 +73,13 @@ void EventAction::EndOfEventAction(const G4Event* evt)
 { 
   evt -> GetEventID();
   
-  CreateTree::Instance() ->Fill();
+  for(unsigned int ii = 0; ii < CreateTree::Instance()->trackID_phot_det.size(); ++ii)
+  {
+    int trackID = CreateTree::Instance()->trackID_phot_det.at(ii);
+    CreateTree::Instance()->trackLength_phot_det.push_back( CreateTree::Instance()->trackLengthMap_phot_det[trackID] );
+    CreateTree::Instance()->prodX_phot_det.push_back( CreateTree::Instance()->prodPositionMap_phot[trackID].x() );
+    CreateTree::Instance()->prodY_phot_det.push_back( CreateTree::Instance()->prodPositionMap_phot[trackID].y() );
+    CreateTree::Instance()->prodZ_phot_det.push_back( CreateTree::Instance()->prodPositionMap_phot[trackID].z() );
+  }
+  CreateTree::Instance()->Fill();
 }

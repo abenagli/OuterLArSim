@@ -5,6 +5,8 @@
 #include <vector>
 #include "TString.h"
 
+#include "G4ThreeVector.hh"
+
 #include "TH2F.h"
 #include "TH3F.h"
 #include "TFile.h"
@@ -45,6 +47,8 @@ public:
   float depositedEnergyCrystal;
   float depositedEnergyWrapping;
   float depositedEnergyWorld;
+  
+  std::map<int,G4ThreeVector> prodPositionMap_phot;
   
   int n_phot_sci_LAr;
   std::vector<float> time_phot_sci_LAr;
@@ -95,6 +99,12 @@ public:
   std::vector<float> time_phot_det;
   std::vector<float> lambda_phot_det;
   std::vector<float> angle_phot_det;
+  std::vector<int> trackID_phot_det;
+  std::vector<float> prodX_phot_det;
+  std::vector<float> prodY_phot_det;
+  std::vector<float> prodZ_phot_det;
+  std::vector<float> trackLength_phot_det;
+  std::map<int,float> trackLengthMap_phot_det;
 };
 
 #endif

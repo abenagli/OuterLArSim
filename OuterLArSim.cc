@@ -134,9 +134,9 @@ int main(int argc, char **argv)
   G4VSteppingVerbose::SetInstance(verbosity);
 
   // Run manager
-  //
+  //auto runManager = G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
   auto *runManager = G4RunManagerFactory::CreateRunManager(G4RunManagerType::Serial);
-
+  
   // Physics list defined using PhysListFactory
   //
   std::string physName("");
@@ -176,7 +176,7 @@ int main(int argc, char **argv)
   DetectorConstruction *detector = new DetectorConstruction(argv[1]);
   runManager->SetUserInitialization(detector);
   G4cout << ">>> Define DetectorConstruction::end <<<" << G4endl;
-
+  
   G4cout << ">>> Define ActionInitialization::begin <<<" << G4endl;
   G4double source_dist = config.read<double>("source_dist");
   ActionInitialization *actionInitialization = new ActionInitialization(printModulo, source_dist, propagateScintillation, propagateCerenkov);

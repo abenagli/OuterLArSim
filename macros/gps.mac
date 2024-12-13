@@ -10,13 +10,12 @@
 /gps/energy 5 MeV
 
 # beamspot
-#/gps/pos/centre 0 0.055 0.1 m
-/gps/pos/centre 0 0 0.20 m
+/gps/pos/centre 125 750 70 mm
 /gps/direction 0 0 -1
 /gps/pos/type Plane
 /gps/pos/shape Square
-/gps/pos/halfx 0.2 m
-/gps/pos/halfy 0.2 m
+/gps/pos/halfx 125 mm
+/gps/pos/halfy 750 mm
 
 #/tracking/verbose 1
 /run/beamOn 1000
